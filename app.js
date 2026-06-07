@@ -296,6 +296,14 @@ const chapterMap = [
   "28 Minutes", "29 Records", "Appendices"
 ];
 
+const andyStages = [
+  "assets/andy-rookie.png",
+  "assets/andy-cup-1.png",
+  "assets/andy-cup-2.png",
+  "assets/andy-cup-3.png",
+  "assets/andy-champion.png"
+];
+
 const state = JSON.parse(localStorage.getItem("andrew-standing-orders") || "{}");
 state.moduleIndex ??= 0;
 state.cardIndex ??= 0;
@@ -313,8 +321,7 @@ const els = {
   streak: document.querySelector("#streak"),
   caps: document.querySelector("#caps"),
   ball: document.querySelector("#ball"),
-  playerPerson: document.querySelector("#playerPerson"),
-  badgeRack: document.querySelector("#badgeRack"),
+  andyArt: document.querySelector("#andyArt"),
   coachText: document.querySelector("#coachText"),
   moduleNav: document.querySelector("#moduleNav"),
   moduleTag: document.querySelector("#moduleTag"),
@@ -417,15 +424,13 @@ function render() {
 function renderPlayer() {
   const capCount = completedModuleCount();
   const level = Math.min(5, Math.floor(state.xp / 45) + capCount);
-  els.playerPerson.dataset.level = String(level);
+  const stage = Math.min(andyStages.length - 1, Math.floor(level / 1.25));
+  els.andyArt.src = andyStages[stage];
+  els.andyArt.style.setProperty("--andy-scale", String(0.86 + level * 0.035));
 }
 
 function renderBadges() {
   const capCount = completedModuleCount();
-  els.badgeRack.innerHTML = "";
-  for (let index = 0; index < capCount; index += 1) {
-    els.badgeRack.append(document.createElement("span"));
-  }
   if (capCount >= 6) {
     els.coachText.textContent = "Andrew is looking like a decorated test starter now.";
   }
@@ -500,6 +505,7 @@ function renderScoreOnly() {
   els.streak.textContent = state.streak;
   els.caps.textContent = `${completedModuleCount()}/${modules.length}`;
   els.ball.style.transform = `translateX(${Math.min(390, state.xp * 2.1)}px) rotate(${state.xp * 7}deg)`;
+  renderPlayer();
   renderBadges();
 }
 
