@@ -174,6 +174,9 @@ function save() {
 }
 
 function currentCard() {
+  if (state.mode === "complete") {
+    return modules[modules.length - 1].cards[0];
+  }
   if (state.mode === "quiz") {
     return modules[state.moduleIndex].cards[state.quizOrder[state.quizIndex]];
   }
@@ -209,9 +212,14 @@ function renderNav() {
 }
 
 function render() {
+  if (completedModuleCount() === modules.length && state.mode !== "quiz") {
+    state.mode = "complete";
+    state.moduleIndex = modules.length - 1;
+  }
   const module = modules[state.moduleIndex];
   const card = currentCard();
   const isQuiz = state.mode === "quiz";
+  const isComplete = state.mode === "complete";
   document.body.dataset.mode = state.mode;
   els.xp.textContent = state.xp;
   els.streak.textContent = state.streak;
@@ -219,27 +227,27 @@ function render() {
   els.ball.style.transform = `translateX(${Math.min(390, state.xp * 2.1)}px) rotate(${state.xp * 7}deg)`;
   renderPlayer();
   renderBadges();
-  els.coachText.textContent = module.coach;
-  els.moduleTag.textContent = module.title;
-  els.cardCounter.textContent = isQuiz
+  els.coachText.textContent = isComplete ? "Final whistle. Andrew has learned every level and passed every recall test." : module.coach;
+  els.moduleTag.textContent = isComplete ? "Champion" : module.title;
+  els.cardCounter.textContent = isComplete ? `${modules.length} / ${modules.length} levels` : isQuiz
     ? `Question ${state.quizIndex + 1} / ${module.cards.length}`
     : `Flashcard ${state.cardIndex + 1} / ${module.cards.length}`;
-  els.stageLabel.textContent = isQuiz
+  els.stageLabel.textContent = isComplete ? "Course complete" : isQuiz
     ? `Recall test: ${state.moduleCorrect}/${module.cards.length} right`
     : "Flashcard warm-up";
-  els.cardTitle.textContent = isQuiz ? "Recall test" : card.title;
-  els.cardBody.textContent = isQuiz ? "" : card.body;
-  els.factList.innerHTML = isQuiz ? "" : card.facts.map((fact) => `<li>${fact}</li>`).join("");
+  els.cardTitle.textContent = isComplete ? "Andrew is match-ready" : isQuiz ? "Recall test" : card.title;
+  els.cardBody.textContent = isComplete ? "All 29 Standing Orders levels are complete, and every recall test has been passed correctly. Champion Andy unlocked." : isQuiz ? "" : card.body;
+  els.factList.innerHTML = isComplete ? ["29 levels completed", "All recall tests passed", "Champion stage unlocked"].map((fact) => `<li>${fact}</li>`).join("") : isQuiz ? "" : card.facts.map((fact) => `<li>${fact}</li>`).join("");
   els.questionPanel.className = "question-panel";
   els.questionPanel.innerHTML = "";
   els.quizStatus.className = "quiz-status";
   els.quizStatus.textContent = "";
-  els.quizBtn.textContent = isQuiz
+  els.quizBtn.textContent = isComplete ? "Review from start" : isQuiz
     ? "Choose an answer"
     : state.cardIndex === module.cards.length - 1 ? "Start recall" : "I remember this";
   els.quizBtn.disabled = isQuiz;
-  els.knowBtn.textContent = isQuiz ? "Back to card" : "Previous";
-  els.knowBtn.disabled = !isQuiz && state.cardIndex === 0;
+  els.knowBtn.textContent = isComplete ? "Reset progress" : isQuiz ? "Back to card" : "Previous";
+  els.knowBtn.disabled = !isComplete && !isQuiz && state.cardIndex === 0;
   if (isQuiz) showQuestion();
   if (els.reviewPrompt) {
     els.reviewPrompt.textContent = completedModuleCount() === modules.length
@@ -255,7 +263,7 @@ function renderPlayer() {
   const capCount = completedModuleCount();
   const maxStage = andyStages.length - 1;
   const maxCaps = Math.max(1, modules.length - 1);
-  const stage = Math.min(maxStage, Math.floor((capCount / maxCaps) * maxStage));
+  const stage = capCount === modules.length ? maxStage : Math.min(maxStage, Math.floor((capCount / maxCaps) * maxStage));
   els.andyArt.src = andyStages[stage];
   els.andyArt.style.setProperty("--andy-scale", String(0.9 + stage * 0.025));
 }
@@ -384,7 +392,9 @@ function finishOrNextQuestion() {
   state.quizIndex = 0;
   state.moduleCorrect = 0;
   if (passed) {
-    state.moduleIndex = (state.moduleIndex + 1) % modules.length;
+    const completed = completedModuleCount() === modules.length;
+    state.moduleIndex = completed ? modules.length - 1 : Math.min(state.moduleIndex + 1, modules.length - 1);
+    if (completed) state.mode = "complete";
   }
   render();
 }
@@ -403,11 +413,24 @@ function reviewWeakSpot() {
 }
 
 els.quizBtn.addEventListener("click", () => {
+  if (state.mode === "complete") {
+    state.mode = "learn";
+    state.moduleIndex = 0;
+    state.cardIndex = 0;
+    render();
+    return;
+  }
   if (state.mode === "quiz") finishOrNextQuestion();
   else nextFlashcard();
 });
 
 els.knowBtn.addEventListener("click", () => {
+  if (state.mode === "complete") {
+    localStorage.removeItem("andrew-standing-orders");
+    Object.assign(state, { moduleIndex: 0, cardIndex: 0, mode: "learn", quizIndex: 0, quizOrder: [], moduleCorrect: 0, xp: 0, streak: 0, correctCards: {}, weak: {} });
+    render();
+    return;
+  }
   if (state.mode === "quiz") {
     state.mode = "learn";
     render();
