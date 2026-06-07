@@ -20,7 +20,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(36, 123, 160, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(36, 123, 160, 0.18), transparent 42%),
     var(--paper);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -37,7 +37,10 @@ button {
   width: min(100%, 520px);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 18px 16px 28px;
+  padding: 12px 12px 22px;
+  display: grid;
+  grid-template-rows: auto auto minmax(300px, 42vh) auto;
+  gap: 10px;
 }
 
 .top-bar {
@@ -68,7 +71,7 @@ p {
 
 h1 {
   margin-bottom: 0;
-  font-size: 1.7rem;
+  font-size: 1.32rem;
   line-height: 1.05;
 }
 
@@ -91,12 +94,12 @@ h2 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  margin: 16px 0;
+  margin: 0;
 }
 
 .scoreboard div {
-  min-height: 74px;
-  padding: 12px;
+  min-height: 56px;
+  padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.72);
@@ -104,15 +107,15 @@ h2 {
 
 .scoreboard strong {
   display: block;
-  margin-top: 6px;
-  font-size: 1.45rem;
+  margin-top: 3px;
+  font-size: 1.18rem;
 }
 
 .pitch {
   position: relative;
   overflow: hidden;
-  min-height: 230px;
-  margin-bottom: 16px;
+  min-height: 300px;
+  margin-bottom: 0;
   border-radius: 8px;
   background:
     linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px) 0 0 / 20% 100%,
@@ -131,7 +134,7 @@ h2 {
 .ball {
   position: absolute;
   left: 22px;
-  top: 38px;
+  top: 24px;
   width: 34px;
   height: 34px;
   border-radius: 999px;
@@ -145,23 +148,52 @@ h2 {
 
 .squad {
   position: absolute;
-  inset: 18px 18px auto;
-  height: 108px;
+  inset: 0;
+  height: auto;
 }
 
 .person {
   position: absolute;
-  bottom: 0;
+  bottom: 34px;
   width: 72px;
   height: 104px;
 }
 
 .coach-person {
-  left: 12px;
+  left: 18px;
+  bottom: 18px;
+  transform: scale(0.82);
+  transform-origin: bottom left;
+  z-index: 2;
 }
 
 .player-person {
-  right: 12px;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) scale(1.85);
+  transform-origin: bottom center;
+  transition: transform 360ms ease;
+  z-index: 3;
+}
+
+.player-person[data-level="1"] {
+  transform: translateX(-50%) scale(2);
+}
+
+.player-person[data-level="2"] {
+  transform: translateX(-50%) scale(2.15);
+}
+
+.player-person[data-level="3"] {
+  transform: translateX(-50%) scale(2.32);
+}
+
+.player-person[data-level="4"] {
+  transform: translateX(-50%) scale(2.5);
+}
+
+.player-person[data-level="5"] {
+  transform: translateX(-50%) scale(2.68);
 }
 
 .person .head {
@@ -251,7 +283,9 @@ h2 {
 }
 
 .player-person .body {
-  background: #dff6e9;
+  background:
+    linear-gradient(90deg, transparent 42%, rgba(20, 36, 43, 0.16) 42% 58%, transparent 58%),
+    #dff6e9;
 }
 
 .clipboard {
@@ -268,8 +302,8 @@ h2 {
 
 .badge-rack {
   position: absolute;
-  left: 4px;
-  right: 4px;
+  left: -10px;
+  right: -10px;
   top: 96px;
   display: flex;
   justify-content: center;
@@ -286,9 +320,9 @@ h2 {
 
 .coach-card {
   position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 14px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
   display: grid;
   grid-template-columns: 52px 1fr;
   gap: 12px;
@@ -316,7 +350,7 @@ h2 {
 }
 
 .module-nav {
-  display: flex;
+  display: none;
   gap: 8px;
   overflow-x: auto;
   padding: 2px 0 14px;
@@ -355,6 +389,9 @@ h2 {
 
 .lesson-card {
   padding: 18px;
+  min-height: 280px;
+  display: grid;
+  align-content: start;
 }
 
 .lesson-head,
@@ -384,14 +421,15 @@ h2 {
 
 #cardBody {
   color: var(--muted);
-  line-height: 1.48;
+  line-height: 1.45;
+  font-size: 1.04rem;
 }
 
 .fact-list {
   display: grid;
   gap: 10px;
   padding: 0;
-  margin: 16px 0;
+  margin: 12px 0;
   list-style: none;
 }
 
@@ -450,14 +488,15 @@ h2 {
 }
 
 .choice {
-  min-height: 48px;
-  padding: 12px;
+  min-height: 58px;
+  padding: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--white);
   color: var(--ink);
   text-align: left;
   font-weight: 750;
+  font-size: 1.02rem;
   transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
 }
 
@@ -525,7 +564,7 @@ h2 {
 }
 
 .review-dock {
-  display: grid;
+  display: none;
   grid-template-columns: 1fr auto;
   gap: 12px;
   align-items: center;
@@ -545,8 +584,27 @@ h2 {
 }
 
 .chapter-map {
-  margin-top: 16px;
-  padding: 14px;
+  display: none;
+}
+
+body[data-mode="quiz"] .lesson-card {
+  align-content: center;
+}
+
+body[data-mode="quiz"] #cardBody,
+body[data-mode="quiz"] .fact-list {
+  display: none;
+}
+
+body[data-mode="quiz"] .question-panel {
+  margin-top: 4px;
+}
+
+.question-text {
+  margin-bottom: 4px;
+  font-size: 1.28rem;
+  line-height: 1.18;
+  color: var(--ink);
 }
 
 .chapter-map h2 {
@@ -580,7 +638,6 @@ h2 {
     padding-inline: 12px;
   }
 
-  .review-dock,
   .actions {
     grid-template-columns: 1fr;
     display: grid;

@@ -41,7 +41,7 @@
             <span class="body">H</span>
             <span class="clipboard"></span>
           </div>
-          <div class="person player-person" aria-hidden="true">
+          <div id="playerPerson" class="person player-person" aria-hidden="true">
             <span class="head"></span>
             <span class="body">A</span>
             <span id="badgeRack" class="badge-rack"></span>
@@ -57,8 +57,6 @@
           </div>
         </div>
       </section>
-
-      <nav id="moduleNav" class="module-nav" aria-label="Learning modules"></nav>
 
       <section class="lesson-card" aria-live="polite">
         <div class="lesson-head">
@@ -77,18 +75,6 @@
         </div>
       </section>
 
-      <section class="review-dock">
-        <div>
-          <h2>Rapid Review</h2>
-          <p id="reviewPrompt">Earn caps to unlock a final whistle challenge.</p>
-        </div>
-        <button id="reviewBtn" class="secondary-btn" type="button">Review weak spots</button>
-      </section>
-
-      <section class="chapter-map">
-        <h2>Rulebook Map</h2>
-        <div id="chapterMap" class="chapter-grid"></div>
-      </section>
     </main>
 
     <script src="app.js"></script>

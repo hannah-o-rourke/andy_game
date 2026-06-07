@@ -313,6 +313,7 @@ const els = {
   streak: document.querySelector("#streak"),
   caps: document.querySelector("#caps"),
   ball: document.querySelector("#ball"),
+  playerPerson: document.querySelector("#playerPerson"),
   badgeRack: document.querySelector("#badgeRack"),
   coachText: document.querySelector("#coachText"),
   moduleNav: document.querySelector("#moduleNav"),
@@ -327,7 +328,6 @@ const els = {
   knowBtn: document.querySelector("#knowBtn"),
   quizBtn: document.querySelector("#quizBtn"),
   resetBtn: document.querySelector("#resetBtn"),
-  reviewBtn: document.querySelector("#reviewBtn"),
   reviewPrompt: document.querySelector("#reviewPrompt"),
   chapterMap: document.querySelector("#chapterMap")
 };
@@ -354,6 +354,7 @@ function completedModuleCount() {
 }
 
 function renderNav() {
+  if (!els.moduleNav) return;
   els.moduleNav.innerHTML = "";
   modules.forEach((module, index) => {
     const button = document.createElement("button");
@@ -374,10 +375,12 @@ function render() {
   const module = modules[state.moduleIndex];
   const card = currentCard();
   const isQuiz = state.mode === "quiz";
+  document.body.dataset.mode = state.mode;
   els.xp.textContent = state.xp;
   els.streak.textContent = state.streak;
   els.caps.textContent = `${completedModuleCount()}/${modules.length}`;
   els.ball.style.transform = `translateX(${Math.min(390, state.xp * 2.1)}px) rotate(${state.xp * 7}deg)`;
+  renderPlayer();
   renderBadges();
   els.coachText.textContent = module.coach;
   els.moduleTag.textContent = module.title;
@@ -387,8 +390,8 @@ function render() {
   els.stageLabel.textContent = isQuiz
     ? `Recall test: ${state.moduleCorrect}/${module.cards.length} right`
     : "Flashcard warm-up";
-  els.cardTitle.textContent = card.title;
-  els.cardBody.textContent = isQuiz ? "Think of the answer first, then choose. Hannah will mark the tackle." : card.body;
+  els.cardTitle.textContent = isQuiz ? "Recall test" : card.title;
+  els.cardBody.textContent = isQuiz ? "" : card.body;
   els.factList.innerHTML = isQuiz ? "" : card.facts.map((fact) => `<li>${fact}</li>`).join("");
   els.questionPanel.className = "question-panel";
   els.questionPanel.innerHTML = "";
@@ -396,17 +399,25 @@ function render() {
   els.quizStatus.textContent = "";
   els.quizBtn.textContent = isQuiz
     ? "Choose an answer"
-    : state.cardIndex === module.cards.length - 1 ? "Start recall" : "Next card";
+    : state.cardIndex === module.cards.length - 1 ? "Start recall" : "I remember this";
   els.quizBtn.disabled = isQuiz;
-  els.knowBtn.textContent = isQuiz ? "Back to cards" : "Previous";
+  els.knowBtn.textContent = isQuiz ? "Back to card" : "Previous";
   els.knowBtn.disabled = !isQuiz && state.cardIndex === 0;
   if (isQuiz) showQuestion();
-  els.reviewPrompt.textContent = completedModuleCount() === modules.length
-    ? "Final whistle reached. Review weak spots to keep it sharp."
-    : "Study the flashcards, then win caps in the recall test.";
+  if (els.reviewPrompt) {
+    els.reviewPrompt.textContent = completedModuleCount() === modules.length
+      ? "Final whistle reached. Review weak spots to keep it sharp."
+      : "Study the flashcards, then win caps in the recall test.";
+  }
   renderNav();
   renderChapterMap();
   save();
+}
+
+function renderPlayer() {
+  const capCount = completedModuleCount();
+  const level = Math.min(5, Math.floor(state.xp / 45) + capCount);
+  els.playerPerson.dataset.level = String(level);
 }
 
 function renderBadges() {
@@ -421,6 +432,7 @@ function renderBadges() {
 }
 
 function renderChapterMap() {
+  if (!els.chapterMap) return;
   const done = Math.ceil((completedModuleCount() / modules.length) * chapterMap.length);
   els.chapterMap.innerHTML = chapterMap.map((chapter, index) =>
     `<span class="chapter-pill${index < done ? " done" : ""}">${chapter}</span>`
@@ -430,7 +442,7 @@ function renderChapterMap() {
 function showQuestion() {
   const card = currentCard();
   els.questionPanel.className = "question-panel active";
-  els.questionPanel.innerHTML = `<p><strong>${card.q}</strong></p>`;
+  els.questionPanel.innerHTML = `<p class="question-text"><strong>${card.q}</strong></p>`;
   shuffleChoices(card).forEach(({ choice, originalIndex }) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -566,7 +578,6 @@ els.knowBtn.addEventListener("click", () => {
     previousFlashcard();
   }
 });
-els.reviewBtn.addEventListener("click", reviewWeakSpot);
 els.resetBtn.addEventListener("click", () => {
   localStorage.removeItem("andrew-standing-orders");
   Object.assign(state, { moduleIndex: 0, cardIndex: 0, mode: "learn", quizIndex: 0, quizOrder: [], moduleCorrect: 0, xp: 0, streak: 0, correctCards: {}, weak: {} });
