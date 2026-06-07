@@ -1,5 +1,5 @@
 const modules = [
-  { id: "s01", title: "1. Introduction", coach: "Start with the why: lawful, transparent, inclusive meetings.", cards: [{ title: "Why standing orders exist", body: "Standing orders are the rulebook for local authority meetings. They turn legislation and good governance principles into a practical meeting process.", facts: ["They support open, transparent and democratically accountable decision-making.", "They help councils consider community views, diversity and lawful process.", "The appendix and guide help implementation, but are not themselves part of the Standing Orders."], q: "A councillor says standing orders are just etiquette and can be ignored if everyone is in a hurry. What is Hannah's call?", choices: ["No: they support lawful transparent decision-making", "Yes: etiquette rules are optional", "Only the Mayor has to follow them"], answer: 0 }] },
+  { id: "s01", title: "1. Introduction", coach: "Start with the why: lawful, transparent, inclusive meetings.", cards: [{ title: "Why standing orders exist", body: "Standing orders are the rulebook for local authority meetings. They turn legislation and good governance principles into a practical meeting process.", facts: ["They support open, transparent and democratically accountable decision-making.", "They help councils consider community views, diversity and lawful process.", "The appendix and guide help implementation, but are not themselves part of the Standing Orders."], q: "What is the main purpose of standing orders?", choices: ["To support lawful, transparent and accountable meeting decisions", "To let meetings ignore process when everyone is busy", "To give only the Mayor meeting rules"], answer: 0 }] },
   { id: "s02", title: "2. Definitions", coach: "Definitions are the studs on the boots. Small words, big consequences.", cards: [{ title: "Key meeting vocabulary", body: "Defined terms control how the rules work. Watch especially for quorum, clear working days, public notice, public excluded, conflict of interest, and meeting.", facts: ["Clear working days exclude the meeting date and the date notice is served.", "A petition contains at least 20 signatures.", "Workshops and working parties are not meetings for these Standing Orders unless specifically included."], q: "A workshop gathers elected members to discuss important matters but makes no decisions. Do the Standing Orders automatically apply?", choices: ["No, not unless required or included", "Yes, every gathering is a meeting", "Only if the media attends"], answer: 0 }] },
   { id: "s03", title: "3. Standing Orders", coach: "This is the formal whistle: adoption, obedience and suspension.", cards: [{ title: "Adopt, obey, suspend carefully", body: "Councils and boards must adopt standing orders, members must obey them, and statutory requirements keep applying even if some standing orders are suspended.", facts: ["Adoption or amendment requires at least 75% of members present.", "All members of councils, committees and subcommittees must obey them.", "Temporary suspension must specify the standing orders and the reason."], q: "The meeting suspends standing orders. Can it also ignore statutory quorum requirements?", choices: ["No, statutory provisions still apply", "Yes, suspension removes every rule", "Only if the vote is unanimous"], answer: 0 }] },
   { id: "s04", title: "4. Meetings", coach: "Know the match clock and the opening kick-off rules.", cards: [{ title: "Holding meetings", body: "Meetings must be called and conducted under LGA 2002, LGOIMA and the Standing Orders. Duration and first-meeting rules matter.", facts: ["Meetings are held for the good government of the city, district or region.", "Meetings cannot continue beyond six hours or after 10.30pm unless resolved.", "The first meeting after an election is called by the chief executive with at least 7 days' notice, unless emergency timing applies."], q: "It is 10.30pm and business remains. What happens unless the meeting resolves to continue?", choices: ["Remaining business is adjourned or transferred", "The chair can keep going alone", "All remaining items are automatically approved"], answer: 0 }] },
@@ -30,32 +30,6 @@ const modules = [
   { id: "s29", title: "29. Records", coach: "Good records make governance defensible later.", cards: [{ title: "Keeping and accessing records", body: "The authority must create and maintain full and accurate records in accessible form, including public excluded records.", facts: ["Records must be maintained in line with prudent business practice.", "Electronic minute repositories must preserve integrity and accessibility.", "Requests for public excluded minutes are treated as official information requests under LGOIMA."], q: "Someone requests minutes from a public excluded item. How should the chief executive treat it?", choices: ["As an official information request under LGOIMA", "Reject it automatically forever", "Release it without considering withholding grounds"], answer: 0 }] }
 ];
 
-modules.forEach((module) => {
-  if (module.cards.length !== 1) return;
-  const source = module.cards[0];
-  module.cards = [
-    {
-      title: source.title,
-      body: source.body,
-      facts: source.facts,
-      q: source.q,
-      choices: source.choices,
-      answer: source.answer
-    },
-    ...source.facts.map((fact, index) => ({
-      title: `Key rule ${index + 1}`,
-      body: fact,
-      facts: ["Read it once, then say it back without looking.", "In the recall test, choose the option that preserves lawful meeting process."],
-      q: `Which statement best matches ${module.title}?`,
-      choices: [
-        fact,
-        "The chair or members can ignore this if the meeting is busy.",
-        "This only matters if the public is excluded."
-      ],
-      answer: 0
-    }))
-  ];
-});
 
 const chapterMap = [
   "1 Intro", "2 Definitions", "3 Standing orders", "4 Meetings",
