@@ -297,11 +297,13 @@ const chapterMap = [
 ];
 
 const andyStages = [
-  "assets/andy-rookie.png",
-  "assets/andy-cup-1.png",
-  "assets/andy-cup-2.png",
-  "assets/andy-cup-3.png",
-  "assets/andy-champion.png"
+  "assets/andy-stage-0.png",
+  "assets/andy-stage-1.png",
+  "assets/andy-stage-2.png",
+  "assets/andy-stage-3.png",
+  "assets/andy-stage-4.png",
+  "assets/andy-stage-5.png",
+  "assets/andy-stage-6.png"
 ];
 
 const state = JSON.parse(localStorage.getItem("andrew-standing-orders") || "{}");
@@ -423,10 +425,10 @@ function render() {
 
 function renderPlayer() {
   const capCount = completedModuleCount();
-  const level = Math.min(5, Math.floor(state.xp / 45) + capCount);
-  const stage = Math.min(andyStages.length - 1, Math.floor(level / 1.25));
+  const level = Math.min(6, Math.floor(state.xp / 38) + capCount);
+  const stage = Math.min(andyStages.length - 1, level);
   els.andyArt.src = andyStages[stage];
-  els.andyArt.style.setProperty("--andy-scale", String(0.86 + level * 0.035));
+  els.andyArt.style.setProperty("--andy-scale", String(0.9 + level * 0.025));
 }
 
 function renderBadges() {
