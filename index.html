@@ -34,6 +34,19 @@
       <section class="pitch">
         <div class="pitch-lines" aria-hidden="true"></div>
         <div id="ball" class="ball" aria-hidden="true">o</div>
+        <div class="squad" aria-label="Rugby learning characters">
+          <div class="person coach-person" aria-hidden="true">
+            <span class="hair"></span>
+            <span class="head"></span>
+            <span class="body">H</span>
+            <span class="clipboard"></span>
+          </div>
+          <div class="person player-person" aria-hidden="true">
+            <span class="head"></span>
+            <span class="body">A</span>
+            <span id="badgeRack" class="badge-rack"></span>
+          </div>
+        </div>
         <div class="coach-card">
           <div class="coach-avatar" aria-hidden="true">
             <span>H</span>
@@ -52,13 +65,15 @@
           <span id="moduleTag" class="tag">Kick-off</span>
           <span id="cardCounter" class="counter">1 / 1</span>
         </div>
+        <p id="stageLabel" class="stage-label">Flashcard warm-up</p>
         <h2 id="cardTitle">Loading</h2>
         <p id="cardBody"></p>
         <ul id="factList" class="fact-list"></ul>
+        <div id="quizStatus" class="quiz-status"></div>
         <div id="questionPanel" class="question-panel"></div>
         <div class="actions">
-          <button id="knowBtn" class="secondary-btn" type="button">Got it</button>
-          <button id="quizBtn" class="primary-btn" type="button">Test me</button>
+          <button id="knowBtn" class="secondary-btn" type="button">Previous</button>
+          <button id="quizBtn" class="primary-btn" type="button">Next card</button>
         </div>
       </section>
 

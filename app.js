@@ -299,6 +299,10 @@ const chapterMap = [
 const state = JSON.parse(localStorage.getItem("andrew-standing-orders") || "{}");
 state.moduleIndex ??= 0;
 state.cardIndex ??= 0;
+state.mode ??= "learn";
+state.quizIndex ??= 0;
+state.quizOrder ??= [];
+state.moduleCorrect ??= 0;
 state.xp ??= 0;
 state.streak ??= 0;
 state.correctCards ??= {};
@@ -309,6 +313,7 @@ const els = {
   streak: document.querySelector("#streak"),
   caps: document.querySelector("#caps"),
   ball: document.querySelector("#ball"),
+  badgeRack: document.querySelector("#badgeRack"),
   coachText: document.querySelector("#coachText"),
   moduleNav: document.querySelector("#moduleNav"),
   moduleTag: document.querySelector("#moduleTag"),
@@ -316,6 +321,8 @@ const els = {
   cardTitle: document.querySelector("#cardTitle"),
   cardBody: document.querySelector("#cardBody"),
   factList: document.querySelector("#factList"),
+  stageLabel: document.querySelector("#stageLabel"),
+  quizStatus: document.querySelector("#quizStatus"),
   questionPanel: document.querySelector("#questionPanel"),
   knowBtn: document.querySelector("#knowBtn"),
   quizBtn: document.querySelector("#quizBtn"),
@@ -330,6 +337,9 @@ function save() {
 }
 
 function currentCard() {
+  if (state.mode === "quiz") {
+    return modules[state.moduleIndex].cards[state.quizOrder[state.quizIndex]];
+  }
   return modules[state.moduleIndex].cards[state.cardIndex];
 }
 
@@ -353,6 +363,7 @@ function renderNav() {
     button.addEventListener("click", () => {
       state.moduleIndex = index;
       state.cardIndex = 0;
+      state.mode = "learn";
       render();
     });
     els.moduleNav.append(button);
@@ -362,26 +373,51 @@ function renderNav() {
 function render() {
   const module = modules[state.moduleIndex];
   const card = currentCard();
+  const isQuiz = state.mode === "quiz";
   els.xp.textContent = state.xp;
   els.streak.textContent = state.streak;
   els.caps.textContent = `${completedModuleCount()}/${modules.length}`;
   els.ball.style.transform = `translateX(${Math.min(390, state.xp * 2.1)}px) rotate(${state.xp * 7}deg)`;
+  renderBadges();
   els.coachText.textContent = module.coach;
   els.moduleTag.textContent = module.title;
-  els.cardCounter.textContent = `${state.cardIndex + 1} / ${module.cards.length}`;
+  els.cardCounter.textContent = isQuiz
+    ? `Question ${state.quizIndex + 1} / ${module.cards.length}`
+    : `Flashcard ${state.cardIndex + 1} / ${module.cards.length}`;
+  els.stageLabel.textContent = isQuiz
+    ? `Recall test: ${state.moduleCorrect}/${module.cards.length} right`
+    : "Flashcard warm-up";
   els.cardTitle.textContent = card.title;
-  els.cardBody.textContent = card.body;
-  els.factList.innerHTML = card.facts.map((fact) => `<li>${fact}</li>`).join("");
+  els.cardBody.textContent = isQuiz ? "Think of the answer first, then choose. Hannah will mark the tackle." : card.body;
+  els.factList.innerHTML = isQuiz ? "" : card.facts.map((fact) => `<li>${fact}</li>`).join("");
   els.questionPanel.className = "question-panel";
   els.questionPanel.innerHTML = "";
-  els.quizBtn.textContent = "Test me";
-  els.knowBtn.textContent = state.cardIndex === module.cards.length - 1 ? "Next module" : "Got it";
+  els.quizStatus.className = "quiz-status";
+  els.quizStatus.textContent = "";
+  els.quizBtn.textContent = isQuiz
+    ? "Choose an answer"
+    : state.cardIndex === module.cards.length - 1 ? "Start recall" : "Next card";
+  els.quizBtn.disabled = isQuiz;
+  els.knowBtn.textContent = isQuiz ? "Back to cards" : "Previous";
+  els.knowBtn.disabled = !isQuiz && state.cardIndex === 0;
+  if (isQuiz) showQuestion();
   els.reviewPrompt.textContent = completedModuleCount() === modules.length
     ? "Final whistle reached. Review weak spots to keep it sharp."
-    : "Earn caps by answering every card in a module correctly.";
+    : "Study the flashcards, then win caps in the recall test.";
   renderNav();
   renderChapterMap();
   save();
+}
+
+function renderBadges() {
+  const capCount = completedModuleCount();
+  els.badgeRack.innerHTML = "";
+  for (let index = 0; index < capCount; index += 1) {
+    els.badgeRack.append(document.createElement("span"));
+  }
+  if (capCount >= 6) {
+    els.coachText.textContent = "Andrew is looking like a decorated test starter now.";
+  }
 }
 
 function renderChapterMap() {
@@ -395,37 +431,54 @@ function showQuestion() {
   const card = currentCard();
   els.questionPanel.className = "question-panel active";
   els.questionPanel.innerHTML = `<p><strong>${card.q}</strong></p>`;
-  card.choices.forEach((choice, index) => {
+  shuffleChoices(card).forEach(({ choice, originalIndex }) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "choice";
     button.textContent = choice;
-    button.addEventListener("click", () => answer(index, button));
+    button.dataset.index = originalIndex;
+    button.addEventListener("click", () => answer(originalIndex, button));
     els.questionPanel.append(button);
   });
 }
 
+function shuffleChoices(card) {
+  const choices = card.choices.map((choice, originalIndex) => ({ choice, originalIndex }));
+  const seed = `${state.moduleIndex}-${state.quizIndex}-${state.xp}`.split("").reduce((total, char) => total + char.charCodeAt(0), 0);
+  return choices
+    .map((item, index) => ({ item, sort: Math.sin(seed + index * 37) }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ item }) => item);
+}
+
 function answer(index, button) {
   const card = currentCard();
-  const key = cardKey();
+  const realCardIndex = state.quizOrder[state.quizIndex];
+  const key = cardKey(state.moduleIndex, realCardIndex);
   const buttons = [...els.questionPanel.querySelectorAll(".choice")];
-  buttons.forEach((choice, choiceIndex) => {
+  buttons.forEach((choice) => {
     choice.disabled = true;
-    if (choiceIndex === card.answer) choice.classList.add("correct");
+    if (Number(choice.dataset.index) === card.answer) choice.classList.add("correct");
   });
   if (index === card.answer) {
     state.xp += 12 + Math.min(state.streak, 5);
     state.streak += 1;
+    state.moduleCorrect += 1;
     state.correctCards[key] = true;
     delete state.weak[key];
-    els.coachText.textContent = "Yes. That is match-day knowledge. Lock it in and take the next carry.";
+    els.quizStatus.className = "quiz-status active good";
+    els.quizStatus.textContent = `Correct. Score: ${state.moduleCorrect}/${modules[state.moduleIndex].cards.length}.`;
+    els.coachText.textContent = "Yes. Clean catch, strong carry. That rule is sticking.";
   } else {
     button.classList.add("wrong");
     state.streak = 0;
     state.weak[key] = true;
-    els.coachText.textContent = "Nearly. Read the yellow note again, then have another go. Fast learning is correction plus repetition.";
+    els.quizStatus.className = "quiz-status active bad";
+    els.quizStatus.textContent = `Not quite. Correct answer: ${card.choices[card.answer]}. Score: ${state.moduleCorrect}/${modules[state.moduleIndex].cards.length}.`;
+    els.coachText.textContent = "Good miss to learn from. Red shows the slip; green shows the law.";
   }
-  els.quizBtn.textContent = "Next";
+  els.quizBtn.disabled = false;
+  els.quizBtn.textContent = state.quizIndex === modules[state.moduleIndex].cards.length - 1 ? "Finish test" : "Next question";
   save();
   renderScoreOnly();
 }
@@ -435,15 +488,54 @@ function renderScoreOnly() {
   els.streak.textContent = state.streak;
   els.caps.textContent = `${completedModuleCount()}/${modules.length}`;
   els.ball.style.transform = `translateX(${Math.min(390, state.xp * 2.1)}px) rotate(${state.xp * 7}deg)`;
+  renderBadges();
 }
 
-function nextCard() {
+function nextFlashcard() {
   const module = modules[state.moduleIndex];
   if (state.cardIndex < module.cards.length - 1) {
     state.cardIndex += 1;
   } else {
+    startQuiz();
+  }
+  render();
+}
+
+function previousFlashcard() {
+  if (state.cardIndex > 0) {
+    state.cardIndex -= 1;
+    render();
+  }
+}
+
+function startQuiz() {
+  const module = modules[state.moduleIndex];
+  state.mode = "quiz";
+  state.quizIndex = 0;
+  state.moduleCorrect = 0;
+  state.quizOrder = module.cards.map((_, index) => index);
+  els.coachText.textContent = "Recall round. No peeking at the cards now.";
+}
+
+function finishOrNextQuestion() {
+  const module = modules[state.moduleIndex];
+  if (state.quizIndex < module.cards.length - 1) {
+    state.quizIndex += 1;
+    render();
+    return;
+  }
+  const passed = state.moduleCorrect === module.cards.length;
+  if (passed) {
+    els.coachText.textContent = "Full marks. Andrew earns another cap on the jersey.";
+  } else {
+    els.coachText.textContent = `Good shift: ${state.moduleCorrect}/${module.cards.length}. Review the red bits and replay this module.`;
+  }
+  state.mode = "learn";
+  state.cardIndex = 0;
+  state.quizIndex = 0;
+  state.moduleCorrect = 0;
+  if (passed) {
     state.moduleIndex = (state.moduleIndex + 1) % modules.length;
-    state.cardIndex = 0;
   }
   render();
 }
@@ -457,20 +549,27 @@ function reviewWeakSpot() {
   const [moduleId, index] = weakKey.split(":");
   state.moduleIndex = modules.findIndex((module) => module.id === moduleId);
   state.cardIndex = Number(index);
+  state.mode = "learn";
   render();
-  showQuestion();
 }
 
 els.quizBtn.addEventListener("click", () => {
-  if (els.quizBtn.textContent === "Next") nextCard();
-  else showQuestion();
+  if (state.mode === "quiz") finishOrNextQuestion();
+  else nextFlashcard();
 });
 
-els.knowBtn.addEventListener("click", nextCard);
+els.knowBtn.addEventListener("click", () => {
+  if (state.mode === "quiz") {
+    state.mode = "learn";
+    render();
+  } else {
+    previousFlashcard();
+  }
+});
 els.reviewBtn.addEventListener("click", reviewWeakSpot);
 els.resetBtn.addEventListener("click", () => {
   localStorage.removeItem("andrew-standing-orders");
-  Object.assign(state, { moduleIndex: 0, cardIndex: 0, xp: 0, streak: 0, correctCards: {}, weak: {} });
+  Object.assign(state, { moduleIndex: 0, cardIndex: 0, mode: "learn", quizIndex: 0, quizOrder: [], moduleCorrect: 0, xp: 0, streak: 0, correctCards: {}, weak: {} });
   render();
 });
 

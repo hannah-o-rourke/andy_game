@@ -111,7 +111,7 @@ h2 {
 .pitch {
   position: relative;
   overflow: hidden;
-  min-height: 178px;
+  min-height: 230px;
   margin-bottom: 16px;
   border-radius: 8px;
   background:
@@ -141,6 +141,147 @@ h2 {
   color: var(--coral);
   box-shadow: 0 8px 16px rgba(20, 36, 43, 0.24);
   transition: transform 420ms ease;
+}
+
+.squad {
+  position: absolute;
+  inset: 18px 18px auto;
+  height: 108px;
+}
+
+.person {
+  position: absolute;
+  bottom: 0;
+  width: 72px;
+  height: 104px;
+}
+
+.coach-person {
+  left: 12px;
+}
+
+.player-person {
+  right: 12px;
+}
+
+.person .head {
+  position: absolute;
+  left: 21px;
+  top: 4px;
+  width: 31px;
+  height: 31px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: #ffd7b5;
+  box-shadow: inset 8px 0 rgba(255, 255, 255, 0.25);
+}
+
+.person .head::before,
+.person .head::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.person .head::before {
+  left: 7px;
+}
+
+.person .head::after {
+  right: 7px;
+}
+
+.hair {
+  position: absolute;
+  left: 16px;
+  top: 0;
+  width: 42px;
+  height: 22px;
+  border-radius: 18px 18px 8px 8px;
+  background: #7b3f25;
+  transform: rotate(-7deg);
+  z-index: 1;
+}
+
+.person .body {
+  position: absolute;
+  left: 14px;
+  top: 38px;
+  width: 45px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--ink);
+  border-radius: 12px 12px 8px 8px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 1.3rem;
+  font-weight: 950;
+}
+
+.person .body::before,
+.person .body::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  width: 20px;
+  height: 9px;
+  border: 3px solid var(--ink);
+  background: var(--white);
+}
+
+.person .body::before {
+  left: -18px;
+  border-radius: 10px 0 0 10px;
+  transform: rotate(20deg);
+}
+
+.person .body::after {
+  right: -18px;
+  border-radius: 0 10px 10px 0;
+  transform: rotate(-20deg);
+}
+
+.coach-person .body {
+  background: #ffe28b;
+}
+
+.player-person .body {
+  background: #dff6e9;
+}
+
+.clipboard {
+  position: absolute;
+  left: 0;
+  top: 58px;
+  width: 20px;
+  height: 28px;
+  border: 3px solid var(--ink);
+  border-radius: 5px;
+  background: #f3efe3;
+  transform: rotate(-10deg);
+}
+
+.badge-rack {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 96px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.badge-rack span {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--gold);
 }
 
 .coach-card {
@@ -228,6 +369,19 @@ h2 {
   color: var(--blue);
 }
 
+.stage-label {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  margin: 14px 0 10px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: #eaf4f6;
+  color: var(--blue);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
 #cardBody {
   color: var(--muted);
   line-height: 1.48;
@@ -249,6 +403,42 @@ h2 {
   line-height: 1.35;
 }
 
+.lesson-card.flashcard-pop {
+  animation: pop 220ms ease;
+}
+
+@keyframes pop {
+  from {
+    transform: translateY(5px) scale(0.99);
+  }
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.quiz-status {
+  display: none;
+  margin: 14px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.quiz-status.active {
+  display: block;
+}
+
+.quiz-status.good {
+  background: #dff6e9;
+  color: var(--green);
+}
+
+.quiz-status.bad {
+  background: #ffe1da;
+  color: #9c321c;
+}
+
 .question-panel {
   display: none;
   gap: 10px;
@@ -268,16 +458,44 @@ h2 {
   color: var(--ink);
   text-align: left;
   font-weight: 750;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
 }
 
 .choice.correct {
   background: #dff6e9;
   border-color: var(--green);
+  animation: answer-good 360ms ease;
 }
 
 .choice.wrong {
   background: #ffe1da;
   border-color: var(--coral);
+  animation: answer-bad 360ms ease;
+}
+
+.choice:disabled {
+  cursor: default;
+}
+
+@keyframes answer-good {
+  0%, 100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes answer-bad {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  55% {
+    transform: translateX(5px);
+  }
 }
 
 .primary-btn,
@@ -292,6 +510,13 @@ h2 {
   background: var(--coral);
   color: var(--white);
   box-shadow: 0 10px 20px rgba(238, 108, 77, 0.24);
+}
+
+.primary-btn:disabled,
+.secondary-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
 }
 
 .secondary-btn {
