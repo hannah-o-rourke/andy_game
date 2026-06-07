@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Andrew's Standing Orders Scrum</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="top-bar" aria-label="Progress">
+        <div>
+          <p class="eyebrow">Nelson Governance Sprint</p>
+          <h1>Andrew's Standing Orders Scrum</h1>
+        </div>
+        <button id="resetBtn" class="icon-btn" type="button" aria-label="Reset progress" title="Reset progress">R</button>
+      </section>
+
+      <section class="scoreboard" aria-label="Learning score">
+        <div>
+          <span class="score-label">XP</span>
+          <strong id="xp">0</strong>
+        </div>
+        <div>
+          <span class="score-label">Streak</span>
+          <strong id="streak">0</strong>
+        </div>
+        <div>
+          <span class="score-label">Caps</span>
+          <strong id="caps">0/8</strong>
+        </div>
+      </section>
+
+      <section class="pitch">
+        <div class="pitch-lines" aria-hidden="true"></div>
+        <div id="ball" class="ball" aria-hidden="true">o</div>
+        <div class="coach-card">
+          <div class="coach-avatar" aria-hidden="true">
+            <span>H</span>
+          </div>
+          <div>
+            <p class="coach-name">Hannah, big-sister coach</p>
+            <p id="coachText">Right Andrew, boots on. We are going to make Nelson meeting rules stick fast.</p>
+          </div>
+        </div>
+      </section>
+
+      <nav id="moduleNav" class="module-nav" aria-label="Learning modules"></nav>
+
+      <section class="lesson-card" aria-live="polite">
+        <div class="lesson-head">
+          <span id="moduleTag" class="tag">Kick-off</span>
+          <span id="cardCounter" class="counter">1 / 1</span>
+        </div>
+        <h2 id="cardTitle">Loading</h2>
+        <p id="cardBody"></p>
+        <ul id="factList" class="fact-list"></ul>
+        <div id="questionPanel" class="question-panel"></div>
+        <div class="actions">
+          <button id="knowBtn" class="secondary-btn" type="button">Got it</button>
+          <button id="quizBtn" class="primary-btn" type="button">Test me</button>
+        </div>
+      </section>
+
+      <section class="review-dock">
+        <div>
+          <h2>Rapid Review</h2>
+          <p id="reviewPrompt">Earn caps to unlock a final whistle challenge.</p>
+        </div>
+        <button id="reviewBtn" class="secondary-btn" type="button">Review weak spots</button>
+      </section>
+
+      <section class="chapter-map">
+        <h2>Rulebook Map</h2>
+        <div id="chapterMap" class="chapter-grid"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
